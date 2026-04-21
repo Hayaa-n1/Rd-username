@@ -3,99 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vietnamese Identity Generator</title>
+    <title>Vietnamese Identity Generator Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .card { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .result-box { transition: all 0.2s ease; }
-        .result-box:active { transform: scale(0.98); }
+        .result-box { transition: all 0.2s ease; position: relative; overflow: hidden; }
+        .result-box:active { transform: scale(0.97); }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-pop { animation: slideIn 0.3s ease-out; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
     <div class="bg-white p-8 rounded-3xl card w-full max-w-md text-center">
-        <h1 class="text-2xl font-bold mb-6 text-gray-800">Trình Tạo Tên & Username</h1>
+        <h1 class="text-2xl font-bold mb-2 text-gray-800">Trình Tạo Identity</h1>
+        <p class="text-gray-500 text-sm mb-8">Dữ liệu thuần Việt & Hiện đại</p>
         
         <div class="space-y-4">
-            <div id="display-name" class="result-box p-4 bg-emerald-50 text-emerald-700 rounded-xl text-xl font-semibold min-h-[60px] flex items-center justify-center border border-emerald-100 cursor-pointer hover:bg-emerald-100" onclick="copyText('display-name')">
-                Chưa tạo tên
+            <div id="display-name" class="result-box p-4 bg-emerald-50 text-emerald-700 rounded-2xl text-xl font-semibold min-h-[64px] flex items-center justify-center border border-emerald-100 cursor-pointer hover:bg-emerald-100" onclick="copyText('display-name')">
+                <span class="text-gray-300 font-normal">Chưa tạo tên</span>
             </div>
             
-            <div id="display-user" class="result-box p-4 bg-rose-50 text-rose-700 rounded-xl text-xl font-semibold min-h-[60px] flex items-center justify-center border border-rose-100 cursor-pointer hover:bg-rose-100" onclick="copyText('display-user')">
-                Chưa tạo username
+            <div id="display-user" class="result-box p-4 bg-rose-50 text-rose-700 rounded-2xl text-xl font-semibold min-h-[64px] flex items-center justify-center border border-rose-100 cursor-pointer hover:bg-rose-100" onclick="copyText('display-user')">
+                <span class="text-gray-300 font-normal">Chưa tạo username</span>
             </div>
 
-            <hr class="my-6 border-gray-100">
-
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="generateNewName()" class="bg-[#3EB489] hover:bg-[#349c77] text-white py-4 rounded-2xl font-bold transition-all transform active:scale-90 shadow-lg shadow-emerald-200">
-                    👤 Tạo Tên
+            <div class="pt-6">
+                <button onclick="generateAll()" class="w-full bg-gray-800 hover:bg-black text-white py-4 rounded-2xl font-bold transition-all transform active:scale-95 shadow-xl mb-4">
+                    ⚡ Tạo Tất Cả Mới
                 </button>
-                <button onclick="generateNewUser()" class="bg-[#e74a3b] hover:bg-[#d13b2d] text-white py-4 rounded-2xl font-bold transition-all transform active:scale-90 shadow-lg shadow-rose-200">
-                    🆔 Tạo User
-                </button>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="generateNewName()" class="bg-[#3EB489] hover:bg-[#349c77] text-white py-3 rounded-xl font-bold transition-all transform active:scale-95 shadow-lg shadow-emerald-100">
+                        👤 Đổi Tên
+                    </button>
+                    <button onclick="generateNewUser()" class="bg-[#e74a3b] hover:bg-[#d13b2d] text-white py-3 rounded-xl font-bold transition-all transform active:scale-95 shadow-lg shadow-rose-100">
+                        🆔 Đổi User
+                    </button>
+                </div>
             </div>
             
-            <p class="text-gray-400 text-xs mt-4">Mẹo: Click vào ô kết quả để copy nhanh</p>
+            <p class="text-gray-400 text-xs mt-6 uppercase tracking-widest">Chạm để sao chép</p>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full text-sm font-medium hidden shadow-2xl transition-all animate-bounce"></div>
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full text-sm font-medium hidden shadow-2xl z-50"></div>
 
     <script>
         const dsHo = ["Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Huỳnh", "Phan", "Vũ", "Võ", "Đặng", "Bùi", "Đỗ", "Hồ", "Ngô", "Dương", "Lý", "An", "Vương", "Trịnh", "Lương", "Mai", "Đào", "Đoàn", "Lâm", "Phùng", "Tống", "Trương", "Hứa", "Trình", "Tạ", "Hà", "Cao"];
         const dsDemNam = ["Văn", "Hữu", "Đức", "Minh", "Quang", "Anh", "Mạnh", "Trọng", "Thế", "Công", "Duy", "Hoàng", "Bảo", "Thành", "Quốc", "Phúc", "Tấn", "Nhật", "Đình", "Khắc", "Sĩ"];
         const dsDemNu = ["Thị", "Thanh", "Thu", "Ngọc", "Hồng", "Diệu", "Tuyết", "Mai", "Quỳnh", "Thảo", "Bích", "Kiều", "Phương", "Kim", "Như", "Minh", "Khánh", "Trúc", "Tú", "Ánh"];
-        const dsTen = [
-            "An", "Anh", "Bảo", "Bình", "Băng", "Bích", "Cường", "Chi", "Chinh", "Chấn",
-            "Công", "Cảnh", "Cát", "Cầm", "Châu", "Chiêu", "Danh", "Diệp", "Dũng", "Dương",
-            "Duy", "Duyên", "Diệu", "Đạt", "Đông", "Đức", "Đan", "Đình", "Đăng", "Đại",
-            "Gia", "Giang", "Giao", "Hà", "Hải", "Hạnh", "Hào", "Hân", "Hiền", "Hiếu",
-            "Hoa", "Hòa", "Hùng", "Huy", "Huyền", "Hương", "Hưng", "Hướng", "Hạ", "Hân",
-            "Kha", "Khang", "Khánh", "Khoa", "Khôi", "Kiên", "Kiệt", "Kiều", "Kỳ", "Khương",
-            "Khải", "Khiêm", "Khuyên", "Khuê", "Lam", "Lâm", "Linh", "Lộc", "Long", "Lan",
-            "Liên", "Liễu", "Lý", "Luân", "Lương", "Lê", "Lễ", "Liêm", "Mai", "Minh",
-            "Mỹ", "Mạnh", "Mẫn", "Mi", "My", "Nam", "Nga", "Ngân", "Nghĩa", "Nhân",
-            "Nhi", "Nhung", "Nguyên", "Nguyệt", "Ngôn", "Nghị", "Ngọc", "Nhàn", "Nhật", "Nhiên",
-            "Phong", "Phú", "Phúc", "Phương", "Phượng", "Phát", "Phi", "Phước", "Quân", "Quang",
-            "Quốc", "Quý", "Quỳnh", "Quyết", "Quyền", "Quế", "Sơn", "Sang", "Sáng", "Sinh",
-            "Tâm", "Tấn", "Thắng", "Thành", "Thảo", "Thư", "Tiến", "Toàn", "Trang", "Triết",
-            "Trí", "Trúc", "Trung", "Tú", "Tuấn", "Tùng", "Tường", "Tuyên", "Tuyết", "Thùy",
-            "Thúy", "Thuận", "Thanh", "Thi", "Thịnh", "Thông", "Thục", "Thái", "Thiện", "Thảo",
-            "Uyên", "Uy", "Uyển", "Vinh", "Vượng", "Vy", "Vân", "Việt", "Vũ", "Văn",
-            "Vi", "Viễn", "Vịnh", "Viên", "Xuân", "Xuyên", "Xuyến", "Yến", "Ý", "Yên",
-            "Ân", "Ánh", "Vĩnh", "Điền", "Khải", "Minh", "Quân", "Tú", "Linh", "Trúc",
-            "Tuệ", "Mẫn", "Khê", "Di", "Trâm", "Nhã", "Đan", "Tường", "Vỹ", "Bách",
-            "Du", "Hy", "Hân", "Khuê", "Lâm", "Ngọc", "Thanh", "Tú", "Phương", "Nhã",
-            "Trọng", "Thành", "Đức", "Kiên", "Trung", "Hoàng", "Quang", "Nam", "Việt", "Sơn",
-            "Tùng", "Bách", "Cường", "Thắng", "Hùng", "Vinh", "Phúc", "Lộc", "Khang", "Tấn",
-            "Tài", "Nhân", "Nghĩa", "Lễ", "Trí", "Tín", "Triết", "Dũng", "Trực", "Vũ",
-            "Phượng", "Hồng", "Huệ", "Lan", "Cúc", "Trúc", "Mai", "Đào", "Liên", "Hà",
-            "Diệp", "Thảo", "Chi", "Quỳnh", "Trà", "My", "Cát", "Tường", "Bảo", "Quý",
-            "Châu", "Ngọc", "Kim", "Bích", "Lam", "Hồng", "Hoàng", "Ngân", "Thạch", "Sáng",
-            "Nhật", "Nguyệt", "Minh", "Tú", "Vỹ", "Trình", "Chương", "Hồi", "Thanh", "Âm",
-            "Vịnh", "Phú", "Thi", "Họa", "Khởi", "Xướng", "Bình", "An", "Thái", "Hòa",
-            "Thế", "Vĩnh", "Thịnh", "Vượng", "Phát", "Đạt", "Tiến", "Công", "Danh", "Toàn",
-            "Vẹn", "Mỹ", "Kiều", "Diệu", "Huyền", "Trang", "Nghiêm", "Túc", "Trình", "Lộ",
-            "Hướng", "Dương", "Thúy", "Sỹ", "Học", "Năng", "Tài", "Lương", "Bổng", "Khiết",
-            "Trinh", "Bạch", "Tuyết", "Nhu", "Nhã", "Thùy", "Cát", "Phổ", "Hân", "Khê",
-            "Cẩm", "Nhung", "Gấm", "Lụa", "Xuyến", "Thoa", "Vân", "Yên", "Hạ", "Thu",
-            "Đông", "Xuân", "Mặc", "Văn", "Khôi", "Huân", "Vĩ", "Đăng", "Tuấn", "Kiệt",
-            "Minh", "Triết", "Gia", "Huy", "Anh", "Minh", "Khôi", "Nguyên", "Thanh", "Sơn",
-            "Thái", "Dương", "Nhật", "Minh", "Đăng", "Khoa", "Bảo", "Long", "Gia", "Bảo",
-            "Đình", "Phong", "Thế", "Bảo", "Quốc", "Trung", "Hữu", "Phước", "Gia", "Phúc",
-            "Thành", "Công", "Hữu", "Đạt", "Duy", "Mạnh", "Quang", "Khai", "Chí", "Kiên",
-            "Vĩnh", "Hưng", "Hoàng", "Phúc", "Quang", "Vinh", "Trường", "An", "Phúc", "Lâm",
-            "Hoàng", "Nam", "Duy", "Tân", "Minh", "Tâm", "Đức", "Tài", "Hữu", "Nghĩa",
-            "Thành", "Ý", "Như", "Nguyện", "Cát", "Anh", "Tuệ", "Lâm", "Nhật", "Hạ",
-            "Bảo", "Trân", "Minh", "Khuê", "Thanh", "Trúc", "Quỳnh", "Anh", "Ngọc", "Diệp",
-            "Thảo", "Nguyên", "An", "Nhiên", "Phương", "Thảo", "Hà", "My", "Trà", "Giang"
-        ];
+        const dsTen = ["An", "Anh", "Bảo", "Bình", "Băng", "Bích", "Cường", "Chi", "Chinh", "Chấn", "Công", "Cảnh", "Cát", "Cầm", "Châu", "Chiêu", "Danh", "Diệp", "Dũng", "Dương", "Duy", "Duyên", "Diệu", "Đạt", "Đông", "Đức", "Đan", "Đình", "Đăng", "Đại", "Gia", "Giang", "Giao", "Hà", "Hải", "Hạnh", "Hào", "Hân", "Hiền", "Hiếu", "Hoa", "Hòa", "Hùng", "Huy", "Huyền", "Hương", "Hưng", "Hướng", "Hạ", "Kha", "Khang", "Khánh", "Khoa", "Khôi", "Kiên", "Kiệt", "Kiều", "Kỳ", "Khải", "Khiêm", "Khuê", "Lam", "Lâm", "Linh", "Lộc", "Long", "Lan", "Liên", "Liễu", "Lý", "Luân", "Lương", "Mai", "Minh", "Mỹ", "Mạnh", "Mẫn", "Mi", "My", "Nam", "Nga", "Ngân", "Nghĩa", "Nhân", "Nhi", "Nhung", "Nguyên", "Nguyệt", "Ngọc", "Nhàn", "Nhật", "Nhiên", "Phong", "Phú", "Phúc", "Phương", "Phượng", "Phát", "Phi", "Phước", "Quân", "Quang", "Quốc", "Quý", "Quỳnh", "Quyết", "Quyền", "Quế", "Sơn", "Sang", "Sáng", "Sinh", "Tâm", "Tấn", "Thắng", "Thành", "Thảo", "Thư", "Tiến", "Toàn", "Trang", "Triết", "Trí", "Trúc", "Trung", "Tú", "Tuấn", "Tùng", "Tường", "Tuyên", "Tuyết", "Thùy", "Thúy", "Thuận", "Thanh", "Thi", "Thịnh", "Thông", "Thái", "Thiện", "Uyên", "Uy", "Uyển", "Vinh", "Vượng", "Vy", "Vân", "Việt", "Vũ", "Văn", "Vi", "Viễn", "Xuân", "Xuyên", "Xuyến", "Yến", "Ý", "Yên", "Ân", "Ánh", "Tuệ", "Mẫn", "Khê", "Di", "Trâm", "Nhã", "Đan", "Tường", "Vỹ", "Bách", "Du", "Hy", "Trọng", "Hoàng", "Việt", "Sơn", "Tùng", "Bách", "Khang", "Tài", "Tín", "Vũ", "Phong", "Cẩm", "Nhung", "Gấm", "Vân", "Yên", "Hạ", "Thu", "Đông", "Khôi", "Vĩ", "Đăng", "Tuấn", "Kiệt", "Huy", "Khoa", "Long", "Phước", "Thịnh"];
 
         let currentFullName = "";
 
-        // Hàm xóa dấu chuẩn hơn, xử lý cả chữ Đ
         function removeVietnameseTones(str) {
             return str.normalize('NFD')
                 .replace(/[\u0300-\u036f]/g, '')
@@ -104,39 +69,52 @@
                 .replace(/\s/g, '');
         }
 
+        function generateAll() {
+            generateNewName();
+        }
+
         function generateNewName() {
             const ho = dsHo[Math.floor(Math.random() * dsHo.length)];
             const isNam = Math.random() > 0.5;
             const dem = isNam ? dsDemNam[Math.floor(Math.random() * dsDemNam.length)] : dsDemNu[Math.floor(Math.random() * dsDemNu.length)];
             
-            // Chống trùng tên với đệm
             let ten;
             do {
                 ten = dsTen[Math.floor(Math.random() * dsTen.length)];
             } while (ten === dem);
 
             currentFullName = `${ho} ${dem} ${ten}`;
-            document.getElementById('display-name').innerText = currentFullName;
+            const el = document.getElementById('display-name');
+            el.innerText = currentFullName;
+            el.classList.remove('animate-pop');
+            void el.offsetWidth; // trigger reflow
+            el.classList.add('animate-pop');
             
-            // Tự động cập nhật User luôn cho mượt
             generateNewUser();
         }
 
         function generateNewUser() {
-            const base = currentFullName ? removeVietnameseTones(currentFullName) : "user" + Math.floor(Math.random()*100);
-            const randomString = Math.random().toString(36).substring(2, 5);
-            const year = Math.floor(Math.random() * (2006 - 1990 + 1)) + 1990;
+            const namePart = currentFullName ? removeVietnameseTones(currentFullName) : "user";
+            
+            // Lấy 2 số cuối năm sinh & chuỗi ngẫu nhiên
+            const yearShort = (Math.floor(Math.random() * (2006 - 1990 + 1)) + 1990).toString().substring(2);
+            const rand = Math.random().toString(36).substring(2, 5); 
+            const randLong = Math.random().toString(36).substring(2, 6);
             
             const formats = [
-                () => base + year,
-                () => base + "." + randomString,
-                () => base + "_" + Math.floor(Math.random() * 999),
-                () => base + "." + year.toString().substring(2),
-                () => base + randomString + year.toString().substring(2)
+                () => namePart + yearShort + rand,           // nva03mks
+                () => namePart + "." + yearShort + rand.slice(0,2), // nva.98jm
+                () => rand + "." + namePart + yearShort,     // abc.nva01
+                () => namePart + "_" + randLong,             // nva_x9k2
+                () => namePart.slice(0,4) + "." + yearShort + rand // nvap.03jkl
             ];
             
             const username = formats[Math.floor(Math.random() * formats.length)]();
-            document.getElementById('display-user').innerText = username;
+            const el = document.getElementById('display-user');
+            el.innerText = username;
+            el.classList.remove('animate-pop');
+            void el.offsetWidth;
+            el.classList.add('animate-pop');
         }
 
         function copyText(id) {
@@ -145,7 +123,7 @@
             
             navigator.clipboard.writeText(text).then(() => {
                 const toast = document.getElementById('toast');
-                toast.innerText = `Đã chép: ${text}`;
+                toast.innerText = `Đã sao chép: ${text}`;
                 toast.classList.remove('hidden');
                 setTimeout(() => toast.classList.add('hidden'), 1500);
             });
